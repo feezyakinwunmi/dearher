@@ -26,7 +26,11 @@ export default function Envelope({
     setOpening(true);
     playChime(music);
 
-    const tl = gsap.timeline({ onComplete: () => setTimeout(onOpen, 250) });
+    const tl = gsap.timeline({
+      onComplete: () => {
+        window.setTimeout(onOpen, 250);
+      },
+    });
     tl.to(bodyRef.current, { x: -6, duration: 0.08, yoyo: true, repeat: 3, ease: "power1.inOut" })
       .to(sealRef.current, { opacity: 0, scale: 0.6, duration: 0.3 }, "-=0.1")
       .to(flapRef.current, { rotateX: 180, duration: 1, ease: "back.inOut(1.4)" }, "-=0.1")
