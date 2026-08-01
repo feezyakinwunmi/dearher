@@ -23,3 +23,11 @@ export interface SurpriseData {
   ending: EndingName;
   music: MusicName;
 }
+
+
+export interface ResponseData {
+  id: string;
+  name: string;
+  message: string;
+  createdAt: string;
+}

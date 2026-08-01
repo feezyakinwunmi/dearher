@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Heart } from "lucide-react";
+import { Heart, Link } from "lucide-react";
 import { SurpriseData, ThemeTokens } from "@/lib/types";
 import Ambient from "@/components/ui/Ambient";
 import Confetti from "@/components/ui/Confetti";
@@ -73,7 +73,7 @@ function Fireflies({ theme }: { theme: ThemeTokens }) {
   );
 }
 
-export default function FinalScreen({ data, theme }: { data: SurpriseData; theme: ThemeTokens }) {
+export default function FinalScreen({ data, theme, id }: { data: SurpriseData; theme: ThemeTokens; id: string }) {
   const [burst, setBurst] = useState(true);
   useEffect(() => {
     const t = setTimeout(() => setBurst(false), 3800);
@@ -97,6 +97,12 @@ export default function FinalScreen({ data, theme }: { data: SurpriseData; theme
         <br />
         <span style={{ color: theme.a, fontStyle: "italic" }}>Happy Girlfriend&apos;s Day.</span>
       </motion.h2>
+      <Link
+    href={`/response/${id}`}
+    className="rounded-full px-6 py-3 bg-pink-600 text-white"
+>
+    Leave a reply ❤️
+</Link>
       <p className="mt-10 text-xs uppercase tracking-[0.3em] text-[#8B8186]">Created with love, by {data.yourName}</p>
     </div>
   );

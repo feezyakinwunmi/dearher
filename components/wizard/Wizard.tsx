@@ -424,29 +424,64 @@ async function createShareLink() {
                   {copied ? "Copied" : "Copy"}
                 </button>
               </div>
-              <div className="mt-6 flex justify-center gap-3">
-                <button
-                  onClick={async () => {
-                    let url = shareUrl;
+             <div className="mt-6 flex justify-center gap-3 flex-wrap">
 
-                    if (!url) {
-                      url = await createShareLink();
-                    }
+  <button
+    onClick={async () => {
+      let url = shareUrl;
 
-                    if (!url) return;
+      if (!url) {
+        url = await createShareLink();
+      }
 
-                    window.open(url, "_blank");
-                  }}
-                  disabled={creating}
-                  className="text-sm px-5 py-2.5 rounded-full border"
-                  style={{ borderColor: "rgba(255,255,255,0.18)", color: "#F4E7D3" }}
-                >
-                  Preview it
-                </button>
-                <button onClick={() => router.push("/")} className="text-sm px-5 py-2.5 rounded-full border" style={{ borderColor: "rgba(255,255,255,0.18)", color: "#F4E7D3" }}>
-                  Done
-                </button>
-              </div>
+      if (!url) return;
+
+      window.open(url, "_blank");
+    }}
+    className="text-sm px-5 py-2.5 rounded-full border"
+    style={{
+      borderColor: "rgba(255,255,255,0.18)",
+      color: "#F4E7D3",
+    }}
+  >
+    Preview
+  </button>
+
+  <button
+    onClick={async () => {
+      let url = shareUrl;
+
+      if (!url) {
+        url = await createShareLink();
+      }
+
+      if (!url) return;
+
+      const id = url.split("/").pop();
+
+      router.push(`/dashboard/${id}`);
+    }}
+    className="text-sm px-5 py-2.5 rounded-full"
+    style={{
+      background: `linear-gradient(135deg, ${theme.a}, ${theme.b})`,
+      color: theme.ink,
+    }}
+  >
+    View Responses
+  </button>
+
+  <button
+    onClick={() => router.push("/")}
+    className="text-sm px-5 py-2.5 rounded-full border"
+    style={{
+      borderColor: "rgba(255,255,255,0.18)",
+      color: "#F4E7D3",
+    }}
+  >
+    Done
+  </button>
+
+</div>
             </div>
           )}
 

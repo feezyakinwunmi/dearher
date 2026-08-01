@@ -14,7 +14,7 @@ import FinalScreen from "./FinalScreen";
 
 const STAGE_COUNT = 8;
 
-export default function SurpriseExperience({ data }: { data: SurpriseData }) {
+export default function SurpriseExperience({ data, id }: { data: SurpriseData; id: string; }) {
   const [stage, setStage] = useState(0);
   const theme = THEMES[data.theme];
   const next = () => setStage((s) => Math.min(STAGE_COUNT - 1, s + 1));
@@ -28,7 +28,11 @@ export default function SurpriseExperience({ data }: { data: SurpriseData }) {
       {stage === 4 && <TimelineScreen data={data} theme={theme} onNext={next} />}
       {stage === 5 && <ProposalQuestion data={data} theme={theme} onYes={next} />}
       {stage === 6 && <DateQuestion theme={theme} onNext={next} />}
-      {stage === 7 && <FinalScreen data={data} theme={theme} />}
+      {stage === 7 && <FinalScreen
+    data={data}
+    theme={theme}
+    id={id}
+/>}
     </div>
   );
 }

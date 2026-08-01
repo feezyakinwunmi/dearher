@@ -42,7 +42,9 @@ export default async function ViewPage({ params }: Props) {
 
   return (
     <main>
-      <SurpriseExperience data={data} />
+      <SurpriseExperience
+       data={data}
+        surpriseId={id} />
     </main>
   );
 }
