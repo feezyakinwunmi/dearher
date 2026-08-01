@@ -20,6 +20,8 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: "DearHer — build an unforgettable Girlfriend's Day surprise",
   description: "Build a beautiful, personalized love page in under two minutes.",
+  icons: { icon: '/favicon.ico' },
+  
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -47,6 +47,11 @@ export default function Landing({
             background: `radial-gradient(60% 50% at 50% 0%, ${theme.a}22, transparent 60%), radial-gradient(50% 40% at 80% 100%, ${theme.b}1a, transparent 60%)`,
           }}
         />
+        <img 
+          src="/logo.png"
+          alt="Girlfriend's Day"
+          className="rounded-full w-20 h-20 mb-8"
+        />
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
