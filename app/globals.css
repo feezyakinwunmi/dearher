@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+.dh-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #f4e7d3;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.dh-input::placeholder {
+  color: #7a7075;
+}
+.dh-input:focus {
+  border-color: var(--dh-accent, #d9a57c);
+}
+
+.dh-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #a79da1;
+}
+
+.dh-caret {
+  animation: dh-blink 1s step-start infinite;
+}
+@keyframes dh-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.dh-heartbeat {
+  animation: dh-heartbeat 1.4s ease-in-out infinite;
+}
+@keyframes dh-heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
