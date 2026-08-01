@@ -349,7 +349,7 @@ async function createShareLink() {
                 {uploading && <p className="mt-2 text-[11px] text-[#7A7075]">Uploading images...</p>}
                 {photos.length > 0 && (
                   <p className="mt-2 text-[11px] text-[#7A7075]">
-                    Photos are securely uploaded and won't make your share link longer.
+                    Photos are securely uploaded and won`&apos;`t make your share link longer.
                   </p>
                 )}
               </div>
