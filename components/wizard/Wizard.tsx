@@ -9,11 +9,12 @@ import {
 } from "lucide-react";
 import { THEMES, THEME_NAMES } from "@/lib/themes";
 import { TEMPLATES } from "@/lib/templates";
-import { encodeShareData, estimateLinkLength } from "@/lib/encode";
 import { CreationMethod, EndingName, FontName, MusicName, SurpriseData, ThemeName } from "@/lib/types";
 import Ambient from "@/components/ui/Ambient";
 import GlassCard from "@/components/ui/GlassCard";
 import { PrimaryButton } from "@/components/ui/Buttons";
+import { uploadImage } from "@/lib/cloudinary";
+
 
 const FONTS: Record<FontName, string> = {
   Fraunces: '"Fraunces", Georgia, serif',
@@ -33,6 +34,9 @@ export default function Wizard() {
   const [ending, setEnding] = useState<EndingName>("confetti");
   const [music, setMusic] = useState<MusicName>("soft-chimes");
   const [copied, setCopied] = useState(false);
+const [shareUrl, setShareUrl] = useState("");
+const [creating, setCreating] = useState(false);
+const [uploading, setUploading] = useState(false);
 
   const [form, setForm] = useState({
     herName: "",
@@ -68,14 +72,28 @@ Happy Girlfriend's Day.
     return generatedLetter();
   };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []).slice(0, 5 - photos.length);
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () => setPhotos((p) => [...p, reader.result as string].slice(0, 5));
-      reader.readAsDataURL(file);
-    });
-  };
+ const handlePhotoUpload = async (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const files = Array.from(e.target.files || []).slice(0, 5 - photos.length);
+
+  if (!files.length) return;
+
+  setUploading(true);
+
+  try {
+    const uploadedUrls = await Promise.all(
+      files.map((file) => uploadImage(file))
+    );
+
+    setPhotos((prev) => [...prev, ...uploadedUrls]);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to upload one or more images.");
+  } finally {
+    setUploading(false);
+  }
+};
 
   const canAdvance = () => {
     if (step === 0) return !!method;
@@ -99,13 +117,44 @@ Happy Girlfriend's Day.
     music,
   });
 
-  const shareLink = () => {
-    if (typeof window === "undefined") return "";
-    const origin = window.location.origin;
-    return `${origin}/view?d=${encodeShareData(surpriseData())}`;
-  };
 
-  const linkLength = step === 4 ? estimateLinkLength(surpriseData()) : 0;
+
+async function createShareLink() {
+  try {
+    setCreating(true);
+
+    const res = await fetch("/api/save", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(surpriseData()),
+    });
+
+    if (!res.ok) {
+      throw new Error("Couldn't save surprise");
+    }
+
+    const result = await res.json();
+
+    const url = `${window.location.origin}/view/${result.id}`;
+
+    setShareUrl(url);
+
+    return url;
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong creating the share link.");
+    return "";
+  } finally {
+    setCreating(false);
+  }
+}
+
+
+
+
+
 
   return (
     <div className="relative min-h-screen px-6 py-16">
@@ -287,13 +336,20 @@ Happy Girlfriend's Day.
                   {photos.length < 5 && (
                     <label className="w-16 h-16 rounded-lg border border-dashed flex items-center justify-center cursor-pointer" style={{ borderColor: "rgba(255,255,255,0.25)" }}>
                       <Camera size={16} color={theme.a} />
-                      <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoUpload} />
-                    </label>
+<input
+  type="file"
+  accept="image/*"
+  multiple
+  disabled={uploading}
+  className="hidden"
+  onChange={handlePhotoUpload}
+/>                    </label>
                   )}
                 </div>
+                {uploading && <p className="mt-2 text-[11px] text-[#7A7075]">Uploading images...</p>}
                 {photos.length > 0 && (
                   <p className="mt-2 text-[11px] text-[#7A7075]">
-                    Photos make the share link longer since there&apos;s no server to host them — fine for a handful of shots, but keep an eye on the link length warning on the last step.
+                    Photos are securely uploaded and won't make your share link longer.
                   </p>
                 )}
               </div>
@@ -341,13 +397,26 @@ Happy Girlfriend's Day.
               <h2 className="font-display text-2xl font-medium mb-2 text-[#F4E7D3]">Your page is ready</h2>
               <p className="text-sm text-[#A79DA1] mb-6">Send her this link — it opens straight into the envelope.</p>
               <div className="flex items-center gap-2 rounded-xl border p-2 pl-4" style={{ borderColor: "rgba(255,255,255,0.14)" }}>
-                <span className="flex-1 truncate text-left text-xs text-[#C9BFC2]">{shareLink()}</span>
+                <span className="flex-1 truncate text-left text-xs text-[#C9BFC2]">
+                  {creating ? "Generating..." : shareUrl || "Click Generate Link"}
+                </span>
                 <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(shareLink());
+                  onClick={async () => {
+                    let url = shareUrl;
+
+                    if (!url) {
+                      url = await createShareLink();
+                    }
+
+                    if (!url) return;
+
+                    await navigator.clipboard.writeText(url);
+
                     setCopied(true);
+
                     setTimeout(() => setCopied(false), 1800);
                   }}
+                  disabled={creating}
                   className="shrink-0 rounded-lg px-3 py-2 text-xs font-medium flex items-center gap-1.5"
                   style={{ background: `linear-gradient(135deg, ${theme.a}, ${theme.b})`, color: theme.ink }}
                 >
@@ -355,16 +424,20 @@ Happy Girlfriend's Day.
                   {copied ? "Copied" : "Copy"}
                 </button>
               </div>
-              {linkLength > 1800 && (
-                <p className="mt-3 text-[11px]" style={{ color: theme.c }}>
-                  This link is quite long ({linkLength.toLocaleString()} characters) because of the attached
-                  photos — some messaging apps may truncate very long links. If it doesn&apos;t open cleanly,
-                  try removing a photo or two, or host the photos externally and swap in their URLs.
-                </p>
-              )}
               <div className="mt-6 flex justify-center gap-3">
                 <button
-                  onClick={() => window.open(shareLink(), "_blank")}
+                  onClick={async () => {
+                    let url = shareUrl;
+
+                    if (!url) {
+                      url = await createShareLink();
+                    }
+
+                    if (!url) return;
+
+                    window.open(url, "_blank");
+                  }}
+                  disabled={creating}
                   className="text-sm px-5 py-2.5 rounded-full border"
                   style={{ borderColor: "rgba(255,255,255,0.18)", color: "#F4E7D3" }}
                 >
@@ -386,8 +459,19 @@ Happy Girlfriend's Day.
               ← Back
             </button>
             {step < 4 && (
-              <PrimaryButton theme={theme} disabled={!canAdvance()} onClick={() => canAdvance() && setStep((s) => s + 1)}>
-                {step === 3 ? "Create the page" : "Continue"} <ArrowRight size={15} />
+              <PrimaryButton 
+                theme={theme} 
+disabled={!canAdvance() || creating || uploading}                onClick={async () => {
+                  if (!canAdvance()) return;
+
+                  if (step === 3) {
+                    await createShareLink();
+                  }
+
+                  setStep((s) => s + 1);
+                }}
+              >
+                {step === 3 ? "Generate Share Link" : "Continue"} <ArrowRight size={15} />
               </PrimaryButton>
             )}
           </div>
